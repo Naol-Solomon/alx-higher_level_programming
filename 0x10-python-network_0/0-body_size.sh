@@ -1,22 +1,25 @@
 #!/bin/bash
 
-# Check if a URL argument is provided
-if [ $# -ne 1 ]; then
-  echo "Usage: $0 <URL>"
-  exit 1
+# Check if the user has provided a URL
+if [ -z "$1" ]; then
+    echo "Usage: $0 <URL>"
+    exit 1
 fi
 
-# URL from the argument
-url="$1"
+# Send a request to the URL using curl and store the response body in a temporary file
+response=$(curl -s -o tmp_body_size_response "$1")
 
-# Send a silent request with -s and get the response size with -I to only fetch headers
-response=$(curl -s -I "$url" | grep -iE '^Content-Length: ' | awk '{print $2}')
-
-# Check if size is found
-if [ -z "$response" ]; then
-  echo "Content-Length header not found in response."
-  exit 1
+# Check if curl was successful
+if [ $? -ne 0 ]; then
+    echo "Error: Unable to fetch URL"
+    exit 1
 fi
 
-# Print the size in bytes
-echo "$response"
+# Calculate the size of the response body in bytes
+size=$(stat -c %s tmp_body_size_response)
+
+# Display the size of the response body
+echo "$size"
+
+# Remove the temporary file
+rm tmp_body_size_response
