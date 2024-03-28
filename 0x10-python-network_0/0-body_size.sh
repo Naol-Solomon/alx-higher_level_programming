@@ -1,18 +1,22 @@
 #!/bin/bash
 
-if [[ $# -ne 1 ]]; then
+# Check if a URL argument is provided
+if [ $# -ne 1 ]; then
   echo "Usage: $0 <URL>"
   exit 1
 fi
 
-url=$1
+# URL from the argument
+url="$1"
 
-# Get the Content-Length from the headers first (more efficient)
-size=$(curl -sI "$url" | awk '/Content-Length:/{print $2}')
+# Send a silent request with -s and get the response size with -I to only fetch headers
+response=$(curl -s -I "$url" | grep -iE '^Content-Length: ' | awk '{print $2}')
 
-# If Content-Length is not available, download the entire body and count bytes
-if [[ -z "$size" ]]; then
-  size=$(curl -s "$url" | wc -c)
+# Check if size is found
+if [ -z "$response" ]; then
+  echo "Content-Length header not found in response."
+  exit 1
 fi
 
-echo "Size of response body: $size bytes"
+# Print the size in bytes
+echo "$response"
