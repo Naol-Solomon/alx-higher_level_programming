@@ -1,4 +1,3 @@
 #!/bin/bash
-#sends a GET request to the URL using curl, and displays the body of the response for a 200 status code
-curl -s -o tmp_body_response -w "%{http_code}" "$1" && if [[ $(cat tmp_body_response) -eq 200 ]]; then cat tmp_body_response; fi && rm tmp_body_response
-
+# takes in a URL, sends a request to that URL, and displays the size of the body of the response
+curl -sX GET $1 -L
